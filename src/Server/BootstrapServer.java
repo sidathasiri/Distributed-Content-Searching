@@ -53,9 +53,9 @@ public class BootstrapServer {
                         for (int i=0; i<nodes.size(); i++) {
                             if (nodes.get(i).getPort() == port) {
                                 if (nodes.get(i).getUsername().equals(username)) {
-                                    reply += "9998";
+                                    reply += "9998";    // failed, already registered to you, unregister first
                                 } else {
-                                    reply += "9997";
+                                    reply += "9997";    //failed, registered to another user, try a different IP and port
                                 }
                                 isOkay = false;
                             }
