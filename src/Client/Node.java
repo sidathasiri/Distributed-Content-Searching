@@ -1,5 +1,7 @@
 package Client;
 
+import com.sun.org.apache.xpath.internal.functions.FuncFalse;
+
 import java.io.IOException;
 import java.net.*;
 import java.util.ArrayList;
@@ -25,7 +27,7 @@ public class Node implements Runnable{
 
     @Override
     public void run() {
-        System.out.println(this.port+" port is listning...");
+//        System.out.println(this.port+" port is listning...");
         DatagramSocket socket = null;
         try {
             socket = new DatagramSocket(this.port);
@@ -45,7 +47,28 @@ public class Node implements Runnable{
             byte[] data = incoming.getData();
             String received = new String(data, 0, incoming.getLength());
             System.out.println(this.port+": join request "+received);
+
+            String newNodeIp = received.split(" ")[2];
+            int newNodePort = Integer.parseInt(received.split(" ")[3]);
+
+            if(!isNeighbour(newNodeIp, newNodePort)){
+                myNeighbours.add(new Node(newNodeIp, newNodePort));
+            }
+
+            for(Node i: myNeighbours)
+                System.out.println(this.port+": neighbours "+i.toString());
         }
+    }
+
+    private Boolean isNeighbour(String ip, int port){
+        boolean found = false;
+        for(Node i:myNeighbours){
+            if(i.getIp().equals(ip) && i.getPort()==port){
+                found = true;
+                break;
+            }
+        }
+        return found;
     }
 
     public String getIp() {
