@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.net.*;
 import java.util.ArrayList;
 
-public class Node {
+public class Node implements Runnable{
     private String ip;
     private int port;
     private String username;
@@ -21,6 +21,31 @@ public class Node {
     public  Node(String ip, int port){
         this.ip = ip;
         this.port = port;
+    }
+
+    @Override
+    public void run() {
+        System.out.println(this.port+" port is listning...");
+        DatagramSocket socket = null;
+        try {
+            socket = new DatagramSocket(this.port);
+        } catch (SocketException e) {
+            e.printStackTrace();
+        }
+        while (true){
+            byte[] buffer = new byte[65536];
+            DatagramPacket incoming = new DatagramPacket(buffer, buffer.length);
+            try {
+
+                socket.receive(incoming);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+            byte[] data = incoming.getData();
+            String received = new String(data, 0, incoming.getLength());
+            System.out.println(this.port+": join request "+received);
+        }
     }
 
     public String getIp() {
@@ -66,7 +91,7 @@ public class Node {
         ds.receive(response);      //get the server response
         String responseMsg = new String(buffer, 0, response.getLength());
         String responseMsgArr[] = responseMsg.split(" ");
-        System.out.println(responseMsg);
+//        System.out.println(responseMsg);
 
         if(responseMsgArr[1].equals("REGOK")){
             int availableNodes = Integer.parseInt(responseMsgArr[2]);
@@ -77,10 +102,22 @@ public class Node {
                     myNeighbours.add(new Node(nodeIp, nodePort));
                 }
                 for(Node i:myNeighbours)
-                    System.out.println("I am "+this.port+" "+i.toString());
+                    System.out.println(this.port+": Neighbours"+i.toString());
             } else{
-                System.out.println("No neighbours yet "+this.port);
+                System.out.println(this.port+": No neighbours yet");
             }
+        }
+
+    }
+
+    public void join() throws IOException {
+        byte[] msg = ("0027 JOIN "+this.ip+" "+this.port).getBytes();
+        for(Node node:myNeighbours){
+            InetAddress ip = InetAddress.getByName("localhost");
+            int port = node.getPort();
+
+            DatagramPacket packet = new DatagramPacket(msg, msg.length, ip, port);
+            ds.send(packet);
         }
     }
 
