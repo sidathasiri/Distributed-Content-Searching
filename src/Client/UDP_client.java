@@ -1,22 +1,21 @@
 package Client;
+
 import java.net.*;
 import java.io.*;
+import java.util.ArrayList;
 
 
 public class UDP_client {
     public static void main(String args[]) throws IOException {
-        DatagramSocket ds = new DatagramSocket();
-        byte b[] = "0036 REG 127.0.0.1 5001 sidath".getBytes();     //request to register
+        Node node1 = new Node("127.0.0.1", 5000);
+        Node node2 = new Node("127.0.0.1", 5003);
+        Node node3 = new Node("127.0.0.1", 5006);
+        Node node4 = new Node("127.0.0.1", 5009);
+        Node node5 = new Node("127.0.0.1", 5012);
 
-        InetAddress ip = InetAddress.getByName("localhost");
-        int port = 55555;
-
-        DatagramPacket packet = new DatagramPacket(b, b.length, ip, port);
-        ds.send(packet);
-
-        byte[] buffer = new byte[512];
-        DatagramPacket response = new DatagramPacket(buffer, buffer.length);
-        ds.receive(response);      //get the server response
-        System.out.println(new String(buffer, 0, response.getLength()));
+        node1.register();
+        node2.register();
+        node3.register();
+        node4.register();
     }
 }
