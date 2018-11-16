@@ -25,12 +25,15 @@ public class UDP_client {
             String username = scanner.nextLine();
             Node node1 = new Node(ip, port, username);
 
+            new Thread(node1).start();
+
             node1.addResource("Harry Potter", "/harry");
 
             System.out.println(node1.getPort()+": registering");
             node1.register();
 
-            new Thread(node1).start();
+            if(i==2)
+                node1.unregister();
         }
 
 

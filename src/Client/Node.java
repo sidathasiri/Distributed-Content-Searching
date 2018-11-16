@@ -54,6 +54,7 @@ public class Node implements Runnable{
 
                 byte[] data = incoming.getData();
                 String received = new String(data, 0, incoming.getLength());
+                System.out.println("received "+received);
 
                 switch (received.split(" ")[1]){
                     case "JOIN":
@@ -76,6 +77,7 @@ public class Node implements Runnable{
                             System.out.println(this.port+": I dont have "+fileName);
                         else
                             System.out.println(this.port+": I have "+fileName);
+                        break;
                 }
             }
         }catch (BindException ex){
@@ -132,6 +134,34 @@ public class Node implements Runnable{
 
         addNeighboursAfterRegister();
 
+    }
+
+    public void unregister() throws IOException{
+        //length UNREG IP_address port_no username
+        ds = new DatagramSocket();
+        byte b[] = ("0036 UNREG "+this.ip+" "+this.port+" "+this.username).getBytes();     //request to register
+
+        InetAddress ip = InetAddress.getByName("localhost");
+        int port = 55555;
+
+        DatagramPacket packet = new DatagramPacket(b, b.length, ip, port);
+        ds.send(packet);
+        System.out.println("sent");
+
+
+        byte[] buffer = new byte[512];
+        DatagramPacket response = new DatagramPacket(buffer, buffer.length);
+        ds.receive(response);      //get the server response
+        String responseMsg = new String(buffer, 0, response.getLength());
+        String responseMsgArr[] = responseMsg.split(" ");
+//        System.out.println(responseMsg);
+
+        if(responseMsgArr[1].equals("UNROK")){
+            if (responseMsgArr[2].equals("0"))
+                System.out.println(this.ip+":"+this.port+" UNREGISTER succeful");
+            else
+                System.out.println("UNREGISTER succesful!");
+        }
     }
 
     public void search(String name) throws IOException {
