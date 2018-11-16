@@ -41,45 +41,47 @@ public class Node implements Runnable{
         DatagramSocket socket = null;
         try {
             socket = new DatagramSocket(this.port);
-        } catch (SocketException e) {
+
+            while (true){
+                byte[] buffer = new byte[65536];
+                DatagramPacket incoming = new DatagramPacket(buffer, buffer.length);
+                try {
+
+                    socket.receive(incoming);
+                }catch (IOException e) {
+                    e.printStackTrace();
+                }
+
+                byte[] data = incoming.getData();
+                String received = new String(data, 0, incoming.getLength());
+
+                switch (received.split(" ")[1]){
+                    case "JOIN":
+                        System.out.println(this.port+": join request "+received);
+
+                        String newNodeIp = received.split(" ")[2];
+                        int newNodePort = Integer.parseInt(received.split(" ")[3]);
+
+                        if(!isNeighbour(newNodeIp, newNodePort)){
+                            myNeighbours.add(new Node(newNodeIp, newNodePort));
+                        }
+
+                        for(Node i: myNeighbours)
+                            System.out.println(this.port+": neighbours "+i.toString());
+                        break;
+                    case "SER":
+                        System.out.println(this.port+": search request "+received);
+                        String fileName = received.split(" ")[4];
+                        if(this.resources.get(fileName) == null)
+                            System.out.println(this.port+": I dont have "+fileName);
+                        else
+                            System.out.println(this.port+": I have "+fileName);
+                }
+            }
+        }catch (BindException ex){
+            System.out.println("This is already registered! Try a different one or un-regiter first");
+        }catch (SocketException e) {
             e.printStackTrace();
-        }
-        while (true){
-            byte[] buffer = new byte[65536];
-            DatagramPacket incoming = new DatagramPacket(buffer, buffer.length);
-            try {
-
-                socket.receive(incoming);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-
-            byte[] data = incoming.getData();
-            String received = new String(data, 0, incoming.getLength());
-
-            switch (received.split(" ")[1]){
-                case "JOIN":
-                    System.out.println(this.port+": join request "+received);
-
-                    String newNodeIp = received.split(" ")[2];
-                    int newNodePort = Integer.parseInt(received.split(" ")[3]);
-
-                    if(!isNeighbour(newNodeIp, newNodePort)){
-                        myNeighbours.add(new Node(newNodeIp, newNodePort));
-                    }
-
-                    for(Node i: myNeighbours)
-                        System.out.println(this.port+": neighbours "+i.toString());
-                    break;
-                case "SER":
-                    System.out.println(this.port+": search request "+received);
-                    String fileName = received.split(" ")[4];
-                    if(this.resources.get(fileName) == null)
-                        System.out.println(this.port+": I dont have "+fileName);
-                    else
-                        System.out.println(this.port+": I have "+fileName);
-
-            }
         }
     }
 
@@ -120,15 +122,16 @@ public class Node implements Runnable{
 
     public void register() throws IOException {
         ds = new DatagramSocket();
-        byte b[] = ("0036 REG "+this.ip+" "+this.port+" sidath").getBytes();     //request to register
+        byte b[] = ("0036 REG "+this.ip+" "+this.port+" "+this.username).getBytes();     //request to register
 
         InetAddress ip = InetAddress.getByName("localhost");
-        int port = 45454;
+        int port = 55555;
 
         DatagramPacket packet = new DatagramPacket(b, b.length, ip, port);
         ds.send(packet);
 
         addNeighboursAfterRegister();
+
     }
 
     public void search(String name) throws IOException {
@@ -182,8 +185,6 @@ public class Node implements Runnable{
             ds.send(packet);
         }
     }
-
-
 
     @Override
     public String toString() {
