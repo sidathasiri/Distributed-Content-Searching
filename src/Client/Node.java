@@ -1,6 +1,7 @@
 package Client;
 
 import com.sun.org.apache.xpath.internal.functions.FuncFalse;
+import javafx.print.Collation;
 
 import java.io.IOException;
 import java.net.*;
@@ -146,6 +147,7 @@ public class Node implements Runnable{
 
         DatagramPacket packet = new DatagramPacket(b, b.length, ip, port);
         ds.send(packet);
+        System.out.println("reg sent");
 
         addNeighboursAfterRegister();
 
@@ -153,6 +155,7 @@ public class Node implements Runnable{
 
     public void unregister() throws IOException{
         //length UNREG IP_address port_no username
+        this.myNeighbours.clear();
         ds = new DatagramSocket();
         byte b[] = ("0036 UNREG "+this.ip+" "+this.port+" "+this.username).getBytes();     //request to register
 
@@ -161,7 +164,6 @@ public class Node implements Runnable{
 
         DatagramPacket packet = new DatagramPacket(b, b.length, ip, port);
         ds.send(packet);
-        System.out.println("sent");
 
 
         byte[] buffer = new byte[512];
@@ -229,12 +231,21 @@ public class Node implements Runnable{
         DatagramPacket response = new DatagramPacket(buffer, buffer.length);
         ds.receive(response);      //get the server response
         String responseMsg = new String(buffer, 0, response.getLength());
+        System.out.println("REg response: "+responseMsg);
         String responseMsgArr[] = responseMsg.split(" ");
 //        System.out.println(responseMsg);
 
         if(responseMsgArr[1].equals("REGOK")){
             int availableNodes = Integer.parseInt(responseMsgArr[2]);
-            if(availableNodes!=0){
+            if(availableNodes == 9998){
+                System.out.println("Failed, already registered to you, unregister first");
+            } else if(availableNodes == 9999){
+                System.out.println("Failed, there is some error in the command");
+            }else if(availableNodes == 9997){
+                System.out.println("Failed, registered to another user, try a different IP and port");
+            }else if(availableNodes == 9996){
+                System.out.println("Failed, can’t register. BS ful");
+            }else if(availableNodes!=0){
                 for(int i=3; i<responseMsgArr.length; i+=2){
                     String nodeIp = responseMsgArr[i];
                     int nodePort = Integer.parseInt(responseMsgArr[i+1]);
@@ -242,7 +253,7 @@ public class Node implements Runnable{
                 }
                 for(Node i:myNeighbours)
                     System.out.println(this.port+": Neighbours"+i.toString());
-            } else{
+            }else{
                 System.out.println(this.port+": No neighbours yet");
             }
         }
