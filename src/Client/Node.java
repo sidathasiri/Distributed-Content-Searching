@@ -267,4 +267,12 @@ public class Node implements Runnable{
                 ", port=" + port +
                 '}';
     }
+
+    public void showRoutingTable(){
+        System.out.println("Routing table of "+ip+":"+port);
+        System.out.println("--------------------------------------");
+        for(Node i:myNeighbours){
+            System.out.println("IP: "+i.getIp()+"\t Post: "+i.getPort());
+        }
+    }
 }

@@ -28,6 +28,13 @@ public class UDP_client {
 
         node1.join();
 
+        CommandHandler commandHandler = new CommandHandler(node1);
+
+        while (true){
+            String command = scanner.nextLine();
+            commandHandler.execute(command);
+        }
+
 //        Node node1 = new Node("127.0.0.1", 5000);
 //        Node node2 = new Node("127.0.0.1", 5003);
 //        Node node3 = new Node("127.0.0.1", 5006);
