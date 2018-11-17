@@ -73,10 +73,17 @@ public class Node implements Runnable{
                     case "SER":
                         System.out.println(this.port+": search request "+received);
                         String fileName = received.split(" ")[4];
-                        if(this.resources.get(fileName) == null)
-                            System.out.println(this.port+": I dont have "+fileName);
-                        else
-                            System.out.println(this.port+": I have "+fileName);
+                        if(this.resources.get(fileName) == null) {
+                            System.out.println(this.port + ": I dont have " + fileName);
+                            try {
+                                this.askNeighboursToSearch(received.split(" ")[4], received.split(" ")[2], received.split(" ")[3], received.split(" ")[5]);
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                            }
+                        }
+                        else {
+                            System.out.println(this.port + ": I have " + fileName);
+                        }
                         break;
                 }
             }
@@ -167,7 +174,7 @@ public class Node implements Runnable{
     public void search(String name) throws IOException {
         ds = new DatagramSocket();
         //0047 SER 129.82.62.142 5070 "Lord of the rings"
-        byte b[] = ("0047 SER "+this.ip+" "+this.port+" mario 0").getBytes();
+        byte b[] = ("0047 SER "+this.ip+" "+this.port+" "+name+" 0").getBytes();
 
         InetAddress ip = InetAddress.getLocalHost();
         for(Node n: myNeighbours){
@@ -176,8 +183,23 @@ public class Node implements Runnable{
             DatagramPacket packet = new DatagramPacket(b, b.length, ip, port);
             ds.send(packet);
         }
+    }
 
+    public void askNeighboursToSearch(String file, String searcherIp, String searcherPort, String hops) throws IOException{
 
+        byte b[] = ("0047 SER "+searcherIp+" "+searcherPort+" "+file+" "+hops).getBytes();
+        String received = b.toString();
+        System.out.println("asking neighbour received "+received);
+        ds = new DatagramSocket();
+
+        InetAddress ip = InetAddress.getByName("localhost");
+
+        for(Node n: myNeighbours){
+            int port = n.getPort();
+
+            DatagramPacket packet = new DatagramPacket(b, b.length, ip, port);
+            ds.send(packet);
+        }
     }
 
     public void addNeighboursAfterRegister() throws IOException {
