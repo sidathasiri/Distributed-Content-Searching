@@ -37,9 +37,12 @@ public class CommandHandler {
                 break;
             case "SEARCH":
                 try {
-                    String fileName = command.split(" ")[1];
-                    System.out.println("Searching");
-                    node.search(fileName);
+                    String[] commandArr = command.split(" ");
+                    String fileName = "";
+                    for(int i=1; i<commandArr.length; i++)
+                        fileName += " "+ commandArr[i];
+                    System.out.println("Searching:"+fileName.trim());
+                    node.search(fileName.trim());
                 } catch (IOException e) {
                     e.printStackTrace();
                 }

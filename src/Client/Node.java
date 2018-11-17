@@ -32,8 +32,6 @@ public class Node implements Runnable{
 
     public void addResource(String name, String url){
         this.resources.put(name, url);
-        System.out.println(this.port+":New resource url:"+this.resources.get(name));
-
     }
 
     @Override
@@ -73,11 +71,15 @@ public class Node implements Runnable{
                         break;
                     case "SER":
                         System.out.println(this.port+": search request "+received);
-                        String fileName = received.split(" ")[4];
+                        String[] splittedCommand = received.split("\"");
+                        String command = splittedCommand[0];
+                        String fileName = splittedCommand[1];
+                        String hops = splittedCommand[2];
+
                         if(this.resources.get(fileName) == null) {
                             System.out.println(this.port + ": I dont have " + fileName);
                             try {
-                                this.askNeighboursToSearch(received.split(" ")[4], received.split(" ")[2], received.split(" ")[3], received.split(" ")[5]);
+                                this.askNeighboursToSearch(fileName, command.split(" ")[2], command.split(" ")[3], hops);
                             } catch (IOException e) {
                                 e.printStackTrace();
                             }
@@ -85,7 +87,7 @@ public class Node implements Runnable{
                         else {
                             System.out.println(this.port + ": I have " + fileName);
                             try {
-                                sendFilePathToRequester(fileName, received.split(" ")[2], received.split(" ")[3]);
+                                sendFilePathToRequester(fileName, command.split(" ")[2], command.split(" ")[3]);
                             } catch (IOException e) {
                                 e.printStackTrace();
                             }
@@ -185,7 +187,7 @@ public class Node implements Runnable{
     public void search(String name) throws IOException {
         ds = new DatagramSocket();
         //0047 SER 129.82.62.142 5070 "Lord of the rings"
-        byte b[] = ("0047 SER "+this.ip+" "+this.port+" "+name+" 0").getBytes();
+        byte b[] = ("0047 SER "+this.ip+" "+this.port+" \""+name+"\" 0").getBytes();
 
         InetAddress ip = InetAddress.getLocalHost();
         for(Node n: myNeighbours){
@@ -287,5 +289,13 @@ public class Node implements Runnable{
         for(Node i:myNeighbours){
             System.out.println("IP: "+i.getIp()+"\t Post: "+i.getPort());
         }
+    }
+
+    public void showResources(){
+        System.out.println("Stored files at "+ip+":"+port);
+        System.out.println("---------------------------------------");
+        resources.forEach((name, url) -> {
+            System.out.println(name);
+        });
     }
 }
