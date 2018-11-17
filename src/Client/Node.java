@@ -83,7 +83,15 @@ public class Node implements Runnable{
                         }
                         else {
                             System.out.println(this.port + ": I have " + fileName);
+                            try {
+                                sendFilePathToRequester(fileName, received.split(" ")[2], received.split(" ")[3]);
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                            }
                         }
+                        break;
+                    case "SEROK":
+                        System.out.println("SEROK received by "+port);
                         break;
                 }
             }
@@ -200,6 +208,19 @@ public class Node implements Runnable{
             DatagramPacket packet = new DatagramPacket(b, b.length, ip, port);
             ds.send(packet);
         }
+    }
+
+    public void sendFilePathToRequester(String fileName, String receiverIP, String receiverPort) throws IOException{
+        byte b[] = ("0047 SEROK 1 "+ip+" "+port+" 1 "+fileName).getBytes();
+        String received = b.toString();
+        System.out.println("sending found results "+fileName);
+        ds = new DatagramSocket();
+
+        InetAddress ip = InetAddress.getByName("localhost");
+        int port = Integer.parseInt(receiverPort);
+
+        DatagramPacket packet = new DatagramPacket(b, b.length, ip, port);
+        ds.send(packet);
     }
 
     public void addNeighboursAfterRegister() throws IOException {
