@@ -10,8 +10,8 @@ public class CommandHandler {
     }
 
     public void execute(String command){
-        switch (command){
-            case "SHOW ROUTING TABLE":
+        switch (command.split(" ")[0]){
+            case "SHOW":
                 node.showRoutingTable();
                 break;
             case "UNREGISTER":
@@ -31,6 +31,15 @@ public class CommandHandler {
             case "JOIN":
                 try {
                     node.join();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                break;
+            case "SEARCH":
+                try {
+                    String fileName = command.split(" ")[1];
+                    System.out.println("Searching");
+                    node.search(fileName);
                 } catch (IOException e) {
                     e.printStackTrace();
                 }

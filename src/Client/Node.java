@@ -150,6 +150,7 @@ public class Node implements Runnable{
         System.out.println("reg sent");
 
         addNeighboursAfterRegister();
+        showRoutingTable();
 
     }
 
@@ -269,6 +270,7 @@ public class Node implements Runnable{
             DatagramPacket packet = new DatagramPacket(msg, msg.length, ip, port);
             ds.send(packet);
         }
+        showRoutingTable();
     }
 
     @Override
