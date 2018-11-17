@@ -11,31 +11,31 @@ public class CommandHandler {
 
     public void execute(String command){
         switch (command.split(" ")[0]){
-            case "SHOW":
+            case "show":
                 node.showRoutingTable();
                 break;
-            case "UNREGISTER":
+            case "unregister":
                 try {
                     node.unregister();
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
                 break;
-            case "REGISTER":
+            case "register":
                 try {
                     node.register();
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
                 break;
-            case "JOIN":
+            case "join":
                 try {
                     node.join();
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
                 break;
-            case "SEARCH":
+            case "search":
                 try {
                     String[] commandArr = command.split(" ");
                     String fileName = "";
@@ -46,6 +46,9 @@ public class CommandHandler {
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
+                break;
+            case "files":
+                node.showResources();
                 break;
             default:
                 System.out.println("False command!");
