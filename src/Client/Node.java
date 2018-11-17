@@ -204,9 +204,10 @@ public class Node implements Runnable{
 
         for(Node n: myNeighbours){
             int port = n.getPort();
-
-            DatagramPacket packet = new DatagramPacket(b, b.length, ip, port);
-            ds.send(packet);
+            if(port!=Integer.parseInt(searcherPort) && !n.getIp().equals(searcherIp)) {
+                DatagramPacket packet = new DatagramPacket(b, b.length, ip, port);
+                ds.send(packet);
+            }
         }
     }
 
