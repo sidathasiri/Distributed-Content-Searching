@@ -28,6 +28,13 @@ public class CommandHandler {
                     e.printStackTrace();
                 }
                 break;
+            case "JOIN":
+                try {
+                    node.join();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                break;
             default:
                 System.out.println("False command!");
         }

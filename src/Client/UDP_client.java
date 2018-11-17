@@ -26,8 +26,6 @@ public class UDP_client {
         System.out.println(node1.getPort()+": registering");
         node1.register();
 
-        node1.join();
-
         CommandHandler commandHandler = new CommandHandler(node1);
 
         while (true){
